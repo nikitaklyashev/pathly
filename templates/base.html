@@ -12,7 +12,7 @@
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"> 
             <div class="col-md-3 mb-2 mb-md-0"> 
                 <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none"> 
-                    <img class="logo_img" src="{{ url_for('static', filename='images/logo.webp') }}" alt="Logo">
+                    <img class="logo" src="{{ url_for('static', filename='images/logo.webp') }}" alt="Logo">
                 </a> 
             </div>
                 <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
@@ -20,8 +20,12 @@
                     <li><a href="{{ url_for('about') }}" class="nav-link px-2">О нас</a></li> 
                 </ul> 
                 <div class="col-md-3 text-end"> 
-                <button type="button" class="btn btn-outline-primary me-2">Войти</button> 
-                <button type="button" class="btn btn-primary">Регистрация</button> 
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary me-2">
+                    Вход
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                    Регистрация
+                </a>
             </div> 
         </header>
     {%block content%}{% endblock %}
@@ -31,7 +35,7 @@
     </div>
     <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
         <li class="ms-3"><a class="text-body-secondary" href="https://github.com/nikitaklyashev">
-            <img class="icon_img" src="{{ url_for('static', filename='images/github_icon.png') }}" alt="GitHub"></a>
+            <img class="icon" src="{{ url_for('static', filename='images/github_icon.png') }}" alt="GitHub"></a>
         </li>
     </ul>
 </footer>

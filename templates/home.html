@@ -1,9 +1,43 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 
-{% block title%}
+{% block title %}
     Главная страница
 {% endblock %}
 
-{%block content%}
-    <h1>Добро пожаловать!</h1>
+{% block content %}
+<h1>Все роадмапы</h1>
+<div class="album py-5 bg-body-tertiary"> 
+    <div class="container"> 
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4"> 
+            
+            {% for roadmap in roadmaps %}
+            <div class="col"> 
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ roadmap['title']}}</h5>
+                            <button class="favorite-btn">
+                                <img class="icon" src="{{ url_for('static', filename='images/favorite-off.svg') }}" alt="Избранное">
+                            </button>
+                        </div>
+                        <p class="card-text text-muted">
+                            {{ roadmap['description']}} 
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-body-secondary">
+                                <i class="bi bi-clock"></i> ~{{ roadmap['hours']}} hours
+                            </small>
+                            <a href="#" class="btn btn-sm btn-primary">
+                                Открыть →
+                            </a>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            {% endfor %}
+        </div> 
+    </div>
+</div>
 {% endblock %}
