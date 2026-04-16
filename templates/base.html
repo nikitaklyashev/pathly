@@ -16,16 +16,22 @@
                 </a> 
             </div>
                 <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
-                    <li><a href="{{ url_for('home') }}" class="nav-link px-2 link-secondary">Главная</a></li>
-                    <li><a href="{{ url_for('about') }}" class="nav-link px-2">О нас</a></li> 
+                    <li><a href="{{ url_for('home') }}" class="nav-link px-2 {% if active_page == 'about' %}link-secondary{% endif %}">Главная</a></li>
+                    <li><a href="{{ url_for('about') }}" class="nav-link px-2 {% if active_page == 'home' %}link-secondary{% endif %}">О нас</a></li> 
                 </ul> 
                 <div class="col-md-3 text-end"> 
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary me-2">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('profile') }}">
+                    <img class="icon avatar" src="{{ url_for('static', filename='images/avatar.png') }}" alt="Аватарка">
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary me-2">
                     Вход
                 </a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+                <a href="{{ url_for('register') }}" class="btn btn-primary">
                     Регистрация
                 </a>
+                {% endif %}
             </div> 
         </header>
     {%block content%}{% endblock %}
@@ -39,6 +45,24 @@
         </li>
     </ul>
 </footer>
+    </div>
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-4" id="authModalLabel">Вы не вошли в аккаунт</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-3">
+                    <p class="text-muted text-center">Войдите или зарегистрируйтесь</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100 py-2">Вход</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary w-100 py-2">Регистрация</a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

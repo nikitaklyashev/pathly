@@ -38,6 +38,13 @@ header {
     opacity: 0.8;
 }
 
+.avatar {
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border-radius: 50%;
+}
+
 .card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-radius: 12px;
@@ -159,6 +166,10 @@ header {
 
 .error_off {
     visibility: hidden;
+}
+
+.bg-body-tertiary {
+    border-radius: 10px;
 }
 
 @media (max-width: 768px) {
