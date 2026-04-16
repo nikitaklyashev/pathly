@@ -1,10 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Blueprint, request, session, redirect, render_template, url_for
+from password_strength import PasswordPolicy
 from db import get_db
-
-EMPTY_LOGIN_ERROR = "Вы не ввели логин!"
-CONFIRM_PASSWORD_ERROR = "Пароли не совпадают!"
-EMPTY_PASSWORD_ERROR = "Пароль не может быть пустым!"
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -16,29 +13,25 @@ def register():
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
 
-        if (username == ''):
-            return render_template("register.html", error=EMPTY_LOGIN_ERROR, is_active=True)
+        result = validate_login(username)
+        if result != "SUCCESS":
+            return render_template("register.html", error=result, is_active=True)
+         
+        result = validate_password(password, confirm_password) 
+        if result != "SUCCESS":
+            return render_template("register.html", error=result, is_active=True)
+    
+        password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
-        if (password == ''):
-            return render_template("register.html", error=EMPTY_PASSWORD_ERROR, is_active=True)
+        db = get_db()
+        db.execute("""
+            INSERT INTO users (username, password_hash) VALUES(?, ?)
+            """, (username, password_hash))       
+    
+        db.commit()
+        db.close()
 
-
-        if password == confirm_password:
-            password_hash = generate_password_hash(password, method="pbkdf2:sha256")
-
-            db = get_db()
-            db.execute("""
-                INSERT INTO users (username, password_hash) VALUES(?, ?)
-                """, (username, password_hash))       
-        
-            
-
-            db.commit()
-            db.close()
-
-            return redirect(url_for("auth.login"))
-        else:
-            return render_template("register.html", error=CONFIRM_PASSWORD_ERROR, is_active=True) 
+        return redirect(url_for("auth.login"))
     
     return render_template("register.html")
 
@@ -71,3 +64,43 @@ def dashboard():
 def logout():
     session.clear()
     return redirect(url_for("auth.login"))
+
+
+def validate_password(password, confirm_password):
+    CONFIRM_PASSWORD_ERROR = "Пароли не совпадают!"
+    EMPTY_PASSWORD_ERROR = "Пароль не может быть пустым!"
+    PASSWORD_STRENGTH_ERROR = "Пароль должен быть длиной не менее 8 символов, включать заглавную букву и цифру!"
+
+    if not password:
+        return EMPTY_PASSWORD_ERROR
+
+    if password != confirm_password:
+        return CONFIRM_PASSWORD_ERROR
+
+
+    policy = PasswordPolicy.from_names(
+        length=8,
+        numbers=1,
+        uppercase=1,
+    )
+    
+    result = policy.test(password)
+
+    if result:
+        return PASSWORD_STRENGTH_ERROR
+    
+    return "SUCCESS"
+
+
+def validate_login(login): 
+    EMPTY_LOGIN_ERROR = "Вы не ввели логин!"
+    LENGTH_LOGIN_ERROR = "Логин должен быть длиной не менее 4 символов!"
+
+    if not login:
+        return EMPTY_LOGIN_ERROR
+
+    if len(login) < 4:
+        return LENGTH_LOGIN_ERROR
+
+    return "SUCCESS"
+    

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from db import get_db, init_db
-from auth import auth_bp
+from auth import *
 
 init_db()
 
@@ -23,12 +23,6 @@ def home():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-
-
-
-
-
 
 
 
