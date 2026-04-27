@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ roadmap.title }} roadmap
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ roadmap.title }}</h1>
+    <h4>{{ roadmap.description }}</h4>
+    <div class="list-group">
+
+    {% for step in steps %}
+        {% set step_status = user_steps.get(step.id, 'todo') if user_steps else 'todo' %}
+        <label class="list-group-item d-flex gap-2">
+        <div class="btn-group">
+            <button
+                class="status-btn {{ step_status }}"
+                data-current-index="{% if step_status == 'process' %}1{% elif step_status == 'done' %}2{% else %}0{% endif %}"
+                data-step-id="{{ step.id }}"
+                {% if not current_user.is_authenticated %}
+                    data-bs-toggle="modal"
+                    data-bs-target="#authModal"
+                {% elif not is_fav%}
+                    data-bs-toggle="modal"
+                    data-bs-target="#notFavModal"
+                {% endif %}
+            >
+                {% if step_status == 'process' %}
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>В процессе</span>
+                {% elif step_status == 'done' %}
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Сделано</span>
+                {% else %}
+                    <i class="fa-regular fa-circle"></i>
+                    <span>Не сделано</span>
+                {% endif %}
+            </button>
+            </div>
+                <span>
+                    {{ step.title }}
+                    <small class="d-block text-body-secondary">
+                        {{ step.description }}
+                    </small>
+                </span>
+        </label>
+    {% endfor %}
+        <div class="progress mb-3" role="progressbar" aria-label="Info example with label" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar text-bg-info w-50">50%</div>
+        </div>
+    </div>
+        <div
+        class="modal fade"
+        id="notFavModal"
+        tabindex="-1"
+        aria-labelledby="notFavModalLabel"
+        aria-hidden="true"
+    >
+        <div
+            class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down"
+        >
+            <div class="modal-content not-fav-modal">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="notFavModalLabel">
+                        Сначала добавьте роадмап в избранное
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Закрыть"
+                    ></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-3">
+                    <p class="not-fav-copy">
+                        Тогда мы сможем сохранить ваш прогресс по шагам и вернуть вас к нему позже.
+                    </p>
+                    <button
+                        type="button"
+                        class="btn not-fav-cta w-100 add-favorite-btn"
+                        data-id="{{ roadmap.id }}"
+                    >
+                        <span class="not-fav-cta__icon-wrap">
+                            <img
+                                class="icon not-fav-cta__icon img"
+                                alt="Избранное"
+                                src="{{ url_for('static', filename='images/favorite-off.svg') }}"
+                            >
+                        </span>
+                        <span class="not-fav-cta__text">
+                            <span class="not-fav-cta__title">Добавить в избранное</span>
+                            <span class="not-fav-cta__subtitle">и начать отслеживать прогресс</span>
+                        </span>
+                    </button>
+                    <p class="not-fav-hint">
+                        После добавления вы сможете отмечать шаги как выполненные.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary w-100"
+                        data-bs-dismiss="modal"
+                    >
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

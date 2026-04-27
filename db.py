@@ -112,20 +112,124 @@ def get_roadmaps():
             return False
         return res
     except sqlite3.Error as e:
-        print("Ошибка получения данных из БД" + str(e))
+        print("Ошибка: " + str(e))
         return False
     finally:
         db.close()
 
-def get_favs(user_id):
+def get_roadmap_by_id(roadmap_id):
+    db = get_db()
+
+    try:
+        cursor = db.execute("SELECT * FROM roadmaps WHERE id = ?", (roadmap_id,))
+        res = cursor.fetchone()
+        if not res:
+            return False
+        return res
+    except sqlite3.Error as e:
+        print("Ошибка: " + str(e))
+        return False
+    finally:
+        db.close()
+
+def get_steps_by_roadmap_id(roadmap_id):
+    db = get_db()
+
+    try:
+        cursor = db.execute("SELECT * FROM steps WHERE roadmap_id = ?", (roadmap_id,))
+        res = cursor.fetchall()
+        if not res:
+            return []
+        return res
+    except sqlite3.Error as e:
+        print("Ошибка: " + str(e))
+        return False
+    finally:
+        db.close()
+
+def get_user_steps(user_id, roadmap_id):
+    db = get_db()
+
+    try:
+        cursor = db.execute(
+            """
+                SELECT usp.step_id, usp.status 
+                FROM user_step_progress usp 
+                JOIN steps s ON s.id = usp.step_id
+                WHERE user_id = ? AND s.roadmap_id = ?
+            """, 
+            (user_id, roadmap_id))
+        res = cursor.fetchall()
+        return {row["step_id"]: row["status"] for row in res}
+    except sqlite3.Error as e:
+        print("Ошибка: " + str(e))
+        return False
+    finally:
+        db.close()
+
+def update_user_step(user_id, step_id, new_status):
+    db = get_db()
+
+    try:
+        cursor = db.execute("SELECT * FROM user_step_progress WHERE user_id = ? AND step_id = ?", (user_id, step_id))
+        res = cursor.fetchone()
+        if res:
+            db.execute(
+            """
+            UPDATE user_step_progress
+            SET status = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ? AND step_id = ?
+            """,
+            (new_status, user_id, step_id)
+            )
+        else:
+            db.execute(
+                """
+                INSERT INTO user_step_progress (user_id, step_id, status)
+                VALUES (?, ?, ?)
+                """,
+                (user_id, step_id, new_status)
+            )
+        db.commit()
+        return True
+    except sqlite3.Error as e:
+        print("Ошибка: " + str(e))
+        return False
+    finally:
+        db.close()   
+
+def remove_user_steps(user_id, roadmap_id):
+    db = get_db()
+
+    try:
+        db.execute("""
+            DELETE FROM user_step_progress
+            WHERE user_id = ?
+              AND step_id IN (
+                  SELECT id
+                  FROM steps
+                  WHERE roadmap_id = ?
+              )
+        """, (user_id, roadmap_id))
+
+        db.commit()
+        return True
+    except sqlite3.Error as e:
+        print("Ошибка: " + str(e))
+        return False
+    finally:
+        db.close()    
+
+def get_fav_ids(user_id):
     db = get_db()
 
     try:
         cursor = db.execute("SELECT * FROM favorites WHERE user_id = ?", (user_id,))
         res = cursor.fetchall()
-        if not res:
+        fav_ids = [fav['roadmap_id'] for fav in res]
+        if not fav_ids:
             return []
-        return res
+        return fav_ids
     except sqlite3.Error as e:
         print("Ошибка: " + str(e))
         return False  
@@ -138,15 +242,13 @@ def get_fav(user_id, roadmap_id):
     try:
         cursor = db.execute("SELECT * FROM favorites WHERE user_id = ? AND roadmap_id = ?", 
             (user_id, roadmap_id))
-        res = cursor.fetchall()
-        if not res:
-            return False
+        res = cursor.fetchone()
         return res
     except sqlite3.Error as e:
         print("Ошибка: " + str(e))
+        return False
     finally:
         db.close()
-    return False
 
 def add_fav(user_id, roadmap_id):
     db = get_db()

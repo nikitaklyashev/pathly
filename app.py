@@ -18,18 +18,12 @@ login_manager.login_view = "login"
 @app.route("/home")
 def home():
     roadmaps = get_roadmaps()
-    favs = []
     fav_ids = []
 
     if current_user.is_authenticated:
-        favs = get_favs(current_user.id)
-        fav_ids = [fav['roadmap_id'] for fav in favs]
+        fav_ids = get_fav_ids(current_user.id)
 
     return render_template('home.html', roadmaps=roadmaps, fav_ids=fav_ids, active_page="home")
-
-@app.route('/about')
-def about():
-    return render_template('about.html', active_page="about")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -74,14 +68,32 @@ def login():
 
             next_page = request.args.get("next")
 
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("favorites"))
         
     return render_template("login.html")
 
-@app.route("/dashboard")
+@app.route("/favorites")
 @login_required
-def dashboard():
-    return render_template("dashboard.html")
+def favorites():
+    fav_ids = get_fav_ids(current_user.id)
+    roadmaps = get_roadmaps()
+    favs_roadmaps = [roadmap for roadmap in roadmaps if roadmap['id'] in fav_ids]
+    return render_template("favorites.html", active_page="favorites", roadmaps=favs_roadmaps)
+
+@app.route("/roadmap/<int:roadmap_id>")
+def roadmap(roadmap_id):
+    roadmap = get_roadmap_by_id(roadmap_id)
+    steps = get_steps_by_roadmap_id(roadmap_id)
+    user_steps = False
+    is_fav = False
+    if current_user.is_authenticated:    
+        user_steps = get_user_steps(current_user.id, roadmap_id)
+        is_fav = bool(get_fav(current_user.id, roadmap_id))
+
+    if not roadmap or not steps:
+        return redirect(url_for("home"))
+    return render_template("roadmap.html", roadmap=roadmap, steps=steps, user_steps=user_steps, is_fav=is_fav)
+
 
 @app.route("/profile")
 @login_required
@@ -91,20 +103,21 @@ def profile():
 @app.route("/toggle-favorite/<int:roadmap_id>", methods=["POST"])
 @login_required
 def toggle_favorite(roadmap_id):
-    if not current_user.is_authenticated:
-        return redirect(url_for("login"))
     user_id = current_user.id
-    favs = get_favs(user_id)
-    if favs:
-        fav_ids = [fav['roadmap_id'] for fav in favs]
-    else:
-        fav_ids = []
+    fav_ids = get_fav_ids(user_id)
 
     if roadmap_id in fav_ids:
         remove_fav(user_id, roadmap_id)
+        remove_user_steps(user_id, roadmap_id)
     else:
         add_fav(user_id, roadmap_id)
 
+    return '', 200
+
+@app.route("/step/<int:step_id>/<string:status>", methods=["POST"])
+@login_required
+def update_step_status(step_id, status):
+    update_user_step(current_user.id, step_id, status)
     return '', 200
 
 @app.route("/logout")

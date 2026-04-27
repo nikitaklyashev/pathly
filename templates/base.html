@@ -3,26 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+        crossorigin="anonymous"
+    >
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
     <div class="container">
-        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"> 
-            <div class="col-md-3 mb-2 mb-md-0"> 
-                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none"> 
+        <header
+            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
+        >
+            <div class="col-md-3 mb-2 mb-md-0">
+                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
                     <img class="logo" src="{{ url_for('static', filename='images/logo.webp') }}" alt="Logo">
-                </a> 
+                </a>
             </div>
-                <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
-                    <li><a href="{{ url_for('home') }}" class="nav-link px-2 {% if active_page == 'about' %}link-secondary{% endif %}">Главная</a></li>
-                    <li><a href="{{ url_for('about') }}" class="nav-link px-2 {% if active_page == 'home' %}link-secondary{% endif %}">О нас</a></li> 
-                </ul> 
-                <div class="col-md-3 text-end"> 
+            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+                <li>
+                    <a
+                        href="{{ url_for('home') }}"
+                        class="nav-link px-2 {% if active_page == 'home' %}link-secondary{% endif %}"
+                    >
+                        Главная
+                    </a>
+                </li>
+                <li>
+                    <a
+                        href="{% if current_user.is_authenticated %}{{ url_for('favorites') }}{% else %}#{% endif %}"
+                        class="nav-link px-2 {% if active_page == 'favorites' %}link-secondary{% endif %}"
+                        {% if not current_user.is_authenticated %}
+                            data-bs-toggle="modal"
+                            data-bs-target="#authModal"
+                        {% endif %}
+                    >
+                        Избранное
+                    </a>
+                </li>
+            </ul>
+            <div class="col-md-3 text-end">
                 {% if current_user.is_authenticated %}
                 <a href="{{ url_for('profile') }}">
-                    <img class="icon avatar" src="{{ url_for('static', filename='images/avatar.png') }}" alt="Аватарка">
+                    <img
+                        class="icon avatar"
+                        src="{{ url_for('static', filename='images/avatar.png') }}"
+                        alt="Аватарка"
+                    >
                 </a>
                 {% else %}
                 <a href="{{ url_for('login') }}" class="btn btn-outline-primary me-2">
@@ -32,37 +65,247 @@
                     Регистрация
                 </a>
                 {% endif %}
-            </div> 
+            </div>
         </header>
-    {%block content%}{% endblock %}
-    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-    <div class="col-md-4 d-flex align-items-center">
-        <span class="mb-3 mb-md-0 text-body-secondary">© 2026 Pathly</span>
+        {% block content %}{% endblock %}
+        <footer
+            class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top"
+        >
+            <div class="col-md-4 d-flex align-items-center">
+                <span class="mb-3 mb-md-0 text-body-secondary">© 2026 Pathly</span>
+            </div>
+            <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+                <li class="ms-3">
+                    <a class="text-body-secondary" href="https://github.com/nikitaklyashev">
+                        <img
+                            class="icon"
+                            src="{{ url_for('static', filename='images/github_icon.png') }}"
+                            alt="GitHub"
+                        >
+                    </a>
+                </li>
+            </ul>
+        </footer>
     </div>
-    <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
-        <li class="ms-3"><a class="text-body-secondary" href="https://github.com/nikitaklyashev">
-            <img class="icon" src="{{ url_for('static', filename='images/github_icon.png') }}" alt="GitHub"></a>
-        </li>
-    </ul>
-</footer>
-    </div>
-    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+    <div
+        class="modal fade"
+        id="authModal"
+        tabindex="-1"
+        aria-labelledby="authModalLabel"
+        aria-hidden="true"
+    >
+        <div
+            class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down"
+        >
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-4" id="authModalLabel">Вы не вошли в аккаунт</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    <h1 class="modal-title fs-4" id="authModalLabel">
+                        Вы не вошли в аккаунт
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Закрыть"
+                    ></button>
                 </div>
                 <div class="modal-body d-flex flex-column gap-3">
                     <p class="text-muted text-center">Войдите или зарегистрируйтесь</p>
-                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100 py-2">Вход</a>
-                    <a href="{{ url_for('register') }}" class="btn btn-primary w-100 py-2">Регистрация</a>
+                    <a
+                        href="{{ url_for('login') }}"
+                        class="btn btn-outline-primary w-100 py-2"
+                    >
+                        Вход
+                    </a>
+                    <a
+                        href="{{ url_for('register') }}"
+                        class="btn btn-primary w-100 py-2"
+                    >
+                        Регистрация
+                    </a>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Закрыть</button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary w-100"
+                        data-bs-dismiss="modal"
+                    >
+                        Закрыть
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    <div
+        class="modal fade"
+        id="removeFavoriteModal"
+        tabindex="-1"
+        aria-labelledby="removeFavoriteModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header border-bottom-0">
+                    <h1 class="modal-title fs-5" id="removeFavoriteModalLabel">
+                        Вы уверены?
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body py-0">
+                    <p>Если уверены, впишите свой логин ниже</p>
+                    <div class="form-floating">
+                        <input
+                            name="username"
+                            class="form-control"
+                            id="removeFavoriteInput"
+                            placeholder="username"
+                        >
+                        <label for="removeFavoriteInput">Логин</label>
+                    </div>
+                </div>
+                <div
+                    class="modal-footer flex-column align-items-stretch w-100 gap-2 pb-3 border-top-0"
+                >   
+
+                    <div class="error_wrapper" id="removeFavoriteError">
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-lg btn-primary"
+                        id="confirmRemoveFavoriteBtn"
+                    >
+                        Сохранить
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-lg btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const favBtns = document.querySelectorAll('.favorite-btn');
+const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+const removeModal = new bootstrap.Modal(document.getElementById('removeFavoriteModal'));
+const removeFavoriteInput = document.getElementById('removeFavoriteInput');
+const removeFavoriteError = document.getElementById('removeFavoriteError');
+const confirmRemoveFavoriteBtn = document.getElementById('confirmRemoveFavoriteBtn');
+const currentLogin = "{{ current_user.username if current_user.is_authenticated else '' }}";
+const statusBtns = document.querySelectorAll('.status-btn')
+const addFavoriteBtns = document.querySelectorAll('.add-favorite-btn');
+const statuses = [
+  { class: 'todo', text: 'Не сделано', icon: 'fa-regular fa-circle' },
+  { class: 'process', text: 'В процессе', icon: 'fa-solid fa-spinner fa-spin' },
+  { class: 'done', text: 'Сделано', icon: 'fa-solid fa-circle-check' }
+];
+const notFavModalEl = document.getElementById('notFavModal');
+const notFavModal = notFavModalEl ? new bootstrap.Modal(notFavModalEl) : null;
+
+let currentId = null;
+let currentImg = null;
+
+statusBtns.forEach((btn) => {
+    if (!btn.dataset.currentIndex)
+        btn.dataset.currentIndex = "0";
+
+    btn.onclick = function() {
+        const isAuth = "{{ current_user.is_authenticated }}" === "True";
+        if (!isAuth) {
+            authModal.show();
+            return;
+        }
+
+        const isFav = "{{ is_fav }}" === "True";
+        if (!isFav) {
+            notFavModal?.show()
+            return;
+        }
+        
+        let index = parseInt(this.dataset.currentIndex);
+        index = (index + 1) % statuses.length;
+        this.dataset.currentIndex = index;
+
+        const status = statuses[index];
+        const stepId = this.dataset.stepId;
+
+        this.className = `btn status-btn ${status.class}`; 
+        this.innerHTML = `<i class="${status.icon}"></i> <span>${status.text}</span>`;
+
+        fetch(`/step/${stepId}/${status.class}`, {method: "POST"});
+    }
+});
+
+favBtns.forEach((btn) => {
+    btn.onclick = function() {
+        const isAuth = "{{ current_user.is_authenticated }}" === "True";
+        if (!isAuth) {
+            authModal.show();
+            return;
+        }
+
+        const id = this.dataset.id;
+        const img = this.querySelector('img');
+
+        if (img.src.includes('favorite-off')) {
+            fetch(`/toggle-favorite/${id}`, { method: 'POST' });
+            img.src = "{{ url_for('static', filename='images/favorite-on.svg') }}";
+            this.classList.add('is-active');
+            return;
+        }
+
+        currentId = id;
+        currentImg = img;
+        removeFavoriteInput.value = "";
+        removeFavoriteError.innerHTML = "";
+        removeModal.show();
+    };
+});
+
+addFavoriteBtns.forEach((btn) => {
+    btn.onclick = function() {
+        const id = this.dataset.id;
+        const img = this.querySelector('img');
+
+        fetch(`/toggle-favorite/${id}`, { method: 'POST' });
+
+        if (img) {
+            img.src = "{{ url_for('static', filename='images/favorite-on.svg') }}";
+        }
+
+        notFavModal?.hide();
+        window.location.reload();
+    };
+});
+
+confirmRemoveFavoriteBtn.onclick = function() {
+    if (!currentId || !currentImg) return;
+
+    if (removeFavoriteInput.value.trim() !== currentLogin) {
+        removeFavoriteError.classList.add("error_on");
+        removeFavoriteError.classList.remove("error_off");
+        removeFavoriteError.innerHTML = "Кажется, вы забыли свой логин???";
+        return;
+    }    
+    removeFavoriteError.classList.add("error_off");
+    removeFavoriteError.classList.remove("error_on");
+
+
+    fetch(`/toggle-favorite/${currentId}`, { method: 'POST' });
+    currentImg.src = "{{ url_for('static', filename='images/favorite-off.svg') }}";
+    currentImg.closest('.favorite-btn')?.classList.remove('is-active');
+
+    removeModal.hide();
+};
+</script>
 </body>
 </html>

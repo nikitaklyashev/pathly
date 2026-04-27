@@ -1,12 +1,10 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 
-{% block title%}
+{% block title %}
     Профиль {{ current_user.username }}
 {% endblock %}
 
-
-
-{%block content%}
+{% block content %}
     <a href="{{ url_for('logout') }}" class="btn btn-outline-danger ms-2">
         Выйти
     </a>

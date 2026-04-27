@@ -1,29 +1,46 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 
-{% block title%}
+{% block title %}
     Регистрация
 {% endblock %}
 
-{%block content%}
-    <main class="form-signin w-100 m-auto"> 
-        <form class="auth" method="post"> 
+{% block content %}
+    <main class="form-signin w-100 m-auto">
+        <form class="auth" method="post">
             <h1 class="h3 mb-3 fw-normal">Регистрация</h1>
-            <div class="form-floating"> 
-                <input name="username" class="form-control" id="floatingInput" placeholder="username"> 
-                <label for="floatingInput">Логин</label> 
-            </div> 
-            <div class="form-floating"> 
-                <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="password"> 
-                <label for="floatingPassword">Придумайте пароль</label> 
-            </div> 
-            <div class="form-floating"> 
-                <input name="confirm_password" type="password" class="form-control" id="confirmPassword" placeholder="password"> 
-                <label for="floatingPassword">Подтвердите пароль</label> 
-            </div> 
-            <button class="btn btn-primary w-100 py-2" type="submit">Войти</button> 
-            <div class="error_wrapper {% if is_active %}error_on{% else %}error_off{% endif %}">
-                {{error}}
+            <div class="form-floating">
+                <input
+                    name="username"
+                    class="form-control"
+                    id="floatingInput"
+                    placeholder="username"
+                >
+                <label for="floatingInput">Логин</label>
             </div>
-    </form> 
+            <div class="form-floating">
+                <input
+                    name="password"
+                    type="password"
+                    class="form-control"
+                    id="floatingPassword"
+                    placeholder="password"
+                >
+                <label for="floatingPassword">Придумайте пароль</label>
+            </div>
+            <div class="form-floating">
+                <input
+                    name="confirm_password"
+                    type="password"
+                    class="form-control"
+                    id="confirmPassword"
+                    placeholder="password"
+                >
+                <label for="floatingPassword">Подтвердите пароль</label>
+            </div>
+            <button class="btn btn-primary w-100 py-2" type="submit">Войти</button>
+            <div class="error_wrapper {% if is_active %}error_on{% else %}error_off{% endif %}">
+                {{ error }}
+            </div>
+        </form>
     </main>
 {% endblock %}
